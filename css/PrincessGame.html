@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Princess Etiquette Training</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: linear-gradient(160deg, #1a0533 0%, #3b0764 50%, #1a0533 100%);
+      font-family: Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      color: white;
+    }
+    h1 { font-size: 2.2rem; color: #FFD700; text-align: center; margin-bottom: 4px; }
+    .subtitle { font-size: 0.95rem; color: #e8c8ff; margin-bottom: 20px; text-align: center; }
+    .scoreboard { display: flex; gap: 30px; margin-bottom: 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 10px 30px; }
+    .score-item { text-align: center; }
+    .score-label { font-size: 0.75rem; color: #e8c8ff; text-transform: uppercase; letter-spacing: 0.1em; }
+    .score-value { font-size: 1.6rem; font-weight: bold; color: #FFD700; }
+    .game-area { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 480px; margin-bottom: 20px; }
+    .scene { position: relative; width: 300px; height: 380px; margin-bottom: 10px; }
+    .floor { position: absolute; bottom: 0; left: 0; right: 0; height: 18px; background: linear-gradient(90deg, #b8860b, #FFD700, #b8860b); border-radius: 4px; }
+    .princess-wrap { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); transition: transform 0.3s ease; }
+    .princess-wrap.curtsy { animation: curtsy 0.7s ease; }
+    .princess-wrap.fall { animation: fall 0.8s ease forwards; }
+    .princess-wrap.wobble { animation: wobble 0.5s ease; }
+    @keyframes curtsy {
+      0%   { transform: translateX(-50%) rotate(0deg); }
+      25%  { transform: translateX(-50%) rotate(-8deg) translateY(10px); }
+      50%  { transform: translateX(-50%) rotate(8deg) translateY(14px); }
+      75%  { transform: translateX(-50%) rotate(-4deg) translateY(6px); }
+      100% { transform: translateX(-50%) rotate(0deg); }
+    }
+    @keyframes fall {
+      0%   { transform: translateX(-50%) rotate(0deg); }
+      40%  { transform: translateX(-50%) rotate(-30deg) translateY(5px); }
+      100% { transform: translateX(-50%) rotate(-90deg) translateY(40px) translateX(-30px); opacity: 0.4; }
+    }
+    @keyframes wobble {
+      0%   { transform: translateX(-50%) rotate(0deg); }
+      20%  { transform: translateX(-50%) rotate(-5deg); }
+      40%  { transform: translateX(-50%) rotate(5deg); }
+      60%  { transform: translateX(-50%) rotate(-3deg); }
+      80%  { transform: translateX(-50%) rotate(3deg); }
+      100% { transform: translateX(-50%) rotate(0deg); }
+    }
+    .scattered-books { position: absolute; bottom: 18px; left: 0; right: 0; display: none; }
+    .scattered-books.show { display: block; }
+    .message { font-size: 1rem; color: #FFD700; min-height: 28px; text-align: center; font-style: italic; margin-bottom: 8px; }
+    .buttons { display: flex; gap: 14px; margin-top: 8px; }
+    button { padding: 13px 28px; border: none; border-radius: 50px; font-family: Georgia, serif; font-size: 1rem; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; font-weight: bold; }
+    button:active { transform: scale(0.96); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+    .btn-stack { background: linear-gradient(135deg, #4a90d9, #1a5fa8); color: white; box-shadow: 0 4px 15px rgba(74,144,217,0.4); }
+    .btn-curtsy { background: linear-gradient(135deg, #c94fad, #8b1a7a); color: white; box-shadow: 0 4px 15px rgba(201,79,173,0.4); }
+    .btn-restart { background: linear-gradient(135deg, #FFD700, #b8860b); color: #1a0533; display: none; margin-top: 10px; }
+    .instructions { font-size: 0.82rem; color: #c8a8e8; text-align: center; max-width: 400px; line-height: 1.6; }
+    #back-link { color: #FFD700; font-style: italic; text-decoration: underline; margin-bottom: 10px; display: inline-block; }
+  </style>
+</head>
+<body>
+
+  <a href="fromScratch.html" id="back-link">← Back to My FBLA Page</a>
+
+  <h1>👑 Princess Etiquette Training</h1>
+  <p class="subtitle">Balance books, curtsy gracefully, earn your crown!</p>
+
+  <div class="scoreboard">
+    <div class="score-item">
+      <div class="score-label">Curtsies</div>
+      <div class="score-value" id="points">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Goal</div>
+      <div class="score-value">3</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Books</div>
+      <div class="score-value" id="book-count">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Max</div>
+      <div class="score-value" id="max-display">5</div>
+    </div>
+  </div>
+
+  <div class="game-area">
+    <div class="scene" id="scene">
+      <svg class="scattered-books" id="scattered" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="30" width="50" height="14" rx="2" fill="#e74c3c" transform="rotate(-25,55,37)"/>
+        <rect x="90" y="40" width="44" height="12" rx="2" fill="#3498db" transform="rotate(10,112,46)"/>
+        <rect x="150" y="25" width="48" height="13" rx="2" fill="#2ecc71" transform="rotate(-15,174,31)"/>
+        <rect x="210" y="35" width="45" height="12" rx="2" fill="#f39c12" transform="rotate(20,232,41)"/>
+        <rect x="60" y="50" width="40" height="11" rx="2" fill="#9b59b6" transform="rotate(5,80,55)"/>
+        <rect x="170" y="48" width="42" height="12" rx="2" fill="#1abc9c" transform="rotate(-10,191,54)"/>
+      </svg>
+      <div class="princess-wrap" id="princess">
+        <svg id="princess-svg" width="120" height="320" viewBox="0 0 120 320" xmlns="http://www.w3.org/2000/svg">
+          <g id="books-group"></g>
+          <ellipse cx="60" cy="72" rx="26" ry="30" fill="#8B4513"/>
+          <ellipse cx="60" cy="50" rx="20" ry="18" fill="#A0522D"/>
+          <g id="crown">
+            <rect x="42" y="38" width="36" height="10" rx="2" fill="#FFD700"/>
+            <polygon points="42,38 48,26 54,38" fill="#FFD700"/>
+            <polygon points="54,38 60,24 66,38" fill="#FFD700"/>
+            <polygon points="66,38 72,26 78,38" fill="#FFD700"/>
+            <circle cx="60" cy="28" r="3" fill="#ff4da6"/>
+            <circle cx="48" cy="32" r="2.5" fill="#4da6ff"/>
+            <circle cx="72" cy="32" r="2.5" fill="#4da6ff"/>
+          </g>
+          <ellipse cx="60" cy="90" rx="20" ry="22" fill="#FDBCB4"/>
+          <ellipse cx="52" cy="86" rx="4" ry="4.5" fill="white"/>
+          <ellipse cx="68" cy="86" rx="4" ry="4.5" fill="white"/>
+          <circle cx="52" cy="87" r="2.5" fill="#4a2800"/>
+          <circle cx="68" cy="87" r="2.5" fill="#4a2800"/>
+          <circle cx="53" cy="86" r="1" fill="white"/>
+          <circle cx="69" cy="86" r="1" fill="white"/>
+          <path d="M52 98 Q60 106 68 98" fill="none" stroke="#c0525a" stroke-width="1.8" stroke-linecap="round"/>
+          <ellipse cx="44" cy="96" rx="6" ry="4" fill="#ffb3ba" opacity="0.6"/>
+          <ellipse cx="76" cy="96" rx="6" ry="4" fill="#ffb3ba" opacity="0.6"/>
+          <ellipse cx="60" cy="94" rx="2.5" ry="1.8" fill="#e8a090"/>
+          <rect x="54" y="108" width="12" height="14" rx="3" fill="#FDBCB4"/>
+          <path d="M28 122 Q30 108 54 108 L66 108 Q90 108 92 122 L96 175 Q60 182 24 175 Z" fill="#c94fad"/>
+          <path d="M50 112 Q60 118 70 112" fill="none" stroke="#ff80d5" stroke-width="1.5"/>
+          <circle cx="60" cy="122" r="3" fill="#FFD700"/>
+          <circle cx="60" cy="132" r="2.5" fill="#FFD700"/>
+          <path d="M24 175 Q10 210 5 260 Q40 275 60 278 Q80 275 115 260 Q110 210 96 175 Q60 182 24 175 Z" fill="#d966bb"/>
+          <path d="M18 210 Q60 222 102 210" fill="none" stroke="#ff80d5" stroke-width="1.2" opacity="0.7"/>
+          <path d="M10 240 Q60 255 110 240" fill="none" stroke="#ff80d5" stroke-width="1.2" opacity="0.7"/>
+          <path d="M20 260 Q60 272 100 260 Q95 278 60 280 Q25 278 20 260 Z" fill="#f0b0e0"/>
+          <path d="M28 125 Q10 148 15 168" fill="none" stroke="#FDBCB4" stroke-width="10" stroke-linecap="round"/>
+          <circle cx="15" cy="170" r="7" fill="#FDBCB4"/>
+          <path d="M92 125 Q110 148 105 168" fill="none" stroke="#FDBCB4" stroke-width="10" stroke-linecap="round"/>
+          <circle cx="105" cy="170" r="7" fill="#FDBCB4"/>
+          <ellipse cx="44" cy="286" rx="16" ry="8" fill="#ff80d5"/>
+          <ellipse cx="76" cy="286" rx="16" ry="8" fill="#ff80d5"/>
+          <ellipse cx="40" cy="283" rx="6" ry="3" fill="white" opacity="0.3"/>
+          <ellipse cx="72" cy="283" rx="6" ry="3" fill="white" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="floor"></div>
+    </div>
+
+    <div class="message" id="message">Stack books on her head, then curtsy to earn points!</div>
+
+    <div class="buttons">
+      <button class="btn-stack" id="btn-stack" onclick="stackBook()">📚 Stack Book</button>
+      <button class="btn-curtsy" id="btn-curtsy" onclick="doCurtsy()">🌸 Curtsy</button>
+    </div>
+    <button class="btn-restart" id="btn-restart" onclick="restartGame()">✨ Play Again</button>
+  </div>
+
+  <p class="instructions">Stack books to increase difficulty — but careful! Stack too many and they'll fall.<br/>Curtsy 3 times to win your crown. 👑</p>
+
+  <script>
+    const BOOK_COLORS = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e8c'];
+    const BOOK_TITLES = ['Etiquette','Posture','Royal Law','Ballroom','Diplomacy','Heraldry','Latin','Protocol'];
+    let books = 0, points = 0, maxBooks = 5, gameOver = false, animating = false;
+
+    function getMaxBooks() {
+      if (points === 0) return 5;
+      if (points === 1) return 4;
+      return 3;
+    }
+
+    function updateDisplay() {
+      document.getElementById('points').textContent = points;
+      document.getElementById('book-count').textContent = books;
+      maxBooks = getMaxBooks();
+      document.getElementById('max-display').textContent = maxBooks;
+    }
+
+    function renderBooks() {
+      const g = document.getElementById('books-group');
+      g.innerHTML = '';
+      const bookH = 13, bookW = 52, startY = 36;
+      for (let i = 0; i < books; i++) {
+        const y = startY - (i * (bookH + 2));
+        const color = BOOK_COLORS[i % BOOK_COLORS.length];
+        const title = BOOK_TITLES[i % BOOK_TITLES.length];
+        const wobble = (i === books - 1 && books > 2) ? (Math.random() * 4 - 2) : 0;
+        const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        rect.setAttribute('x', 60 - bookW/2 + wobble);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', bookW);
+        rect.setAttribute('height', bookH);
+        rect.setAttribute('rx', '2');
+        rect.setAttribute('fill', color);
+        const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+        text.setAttribute('x', '60');
+        text.setAttribute('y', y + 9);
+        text.setAttribute('text-anchor','middle');
+        text.setAttribute('font-size','7');
+        text.setAttribute('fill','white');
+        text.setAttribute('font-family','Georgia,serif');
+        text.textContent = title;
+        g.appendChild(rect);
+        g.appendChild(text);
+      }
+    }
+
+    function stackBook() {
+      if (gameOver || animating) return;
+      books++;
+      maxBooks = getMaxBooks();
+      if (books > maxBooks) { triggerFall(); return; }
+      renderBooks();
+      updateDisplay();
+      const princess = document.getElementById('princess');
+      princess.classList.add('wobble');
+      setTimeout(() => princess.classList.remove('wobble'), 500);
+      const msgs = ['She wobbles slightly... stay steady!','Looking graceful so far!','The stack grows taller...','Her posture is impressive!','Quite the balancing act!'];
+      document.getElementById('message').textContent = msgs[Math.min(books-1, msgs.length-1)];
+      if (books >= maxBooks) document.getElementById('message').textContent = '⚠️ Maximum reached! Curtsy now or risk it all!';
+    }
+
+    function doCurtsy() {
+      if (gameOver || animating) return;
+      if (books === 0) { document.getElementById('message').textContent = 'Stack some books first before curtsying!'; return; }
+      animating = true;
+      const princess = document.getElementById('princess');
+      const riskFall = books >= maxBooks;
+      princess.classList.add('curtsy');
+      setTimeout(() => {
+        princess.classList.remove('curtsy');
+        animating = false;
+        if (riskFall && Math.random() < 0.45) {
+          triggerFall();
+        } else {
+          points++;
+          books = 0;
+          renderBooks();
+          updateDisplay();
+          if (points >= 3) {
+            triggerWin();
+          } else {
+            const msgs = ['✨ Elegant! One curtsy down!','🌸 Magnificent! Two curtsies! One more!'];
+            document.getElementById('message').textContent = msgs[points-1] || '✨ Beautiful curtsy!';
+          }
+        }
+      }, 700);
+    }
+
+    function triggerFall() {
+      gameOver = true;
+      const princess = document.getElementById('princess');
+      princess.classList.add('fall');
+      document.getElementById('scattered').classList.add('show');
+      document.getElementById('message').textContent = '💥 The books tumbled! Training failed...';
+      document.getElementById('btn-stack').disabled = true;
+      document.getElementById('btn-curtsy').disabled = true;
+      document.getElementById('btn-restart').style.display = 'inline-block';
+    }
+
+    function triggerWin() {
+      gameOver = true;
+      document.getElementById('message').textContent = '👑 Three perfect curtsies! You are royally trained!';
+      document.getElementById('btn-stack').disabled = true;
+      document.getElementById('btn-curtsy').disabled = true;
+      const restart = document.getElementById('btn-restart');
+      restart.style.display = 'inline-block';
+      restart.textContent = '🎉 Play Again';
+      let count = 0;
+      const interval = setInterval(() => {
+        const p = document.getElementById('princess');
+        p.classList.add('curtsy');
+        setTimeout(() => p.classList.remove('curtsy'), 700);
+        if (++count >= 3) clearInterval(interval);
+      }, 900);
+    }
+
+    function restartGame() {
+      books = 0; points = 0; gameOver = false; animating = false; maxBooks = 5;
+      const princess = document.getElementById('princess');
+      princess.classList.remove('fall','curtsy','wobble');
+      document.getElementById('scattered').classList.remove('show');
+      document.getElementById('btn-stack').disabled = false;
+      document.getElementById('btn-curtsy').disabled = false;
+      document.getElementById('btn-restart').style.display = 'none';
+      renderBooks();
+      updateDisplay();
+      document.getElementById('message').textContent = 'Stack books on her head, then curtsy to earn points!';
+    }
+
+    renderBooks();
+    updateDisplay();
+  </script>
+
+</body>
+</html>
